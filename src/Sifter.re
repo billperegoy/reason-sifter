@@ -30,17 +30,14 @@ type scoredResult('a) =
 let extractResults = (results: list(scoredResult('a))) : list('a) =>
   List.map(snd, results);
 
-let rec take = (limit, results) =>
+let rec take = (limit: int , results: list(scoredResult('a))) : list(scoredResult('a)) =>
   switch(results) {
   | [] => []
   | [_head, ...tail] =>
        if (List.length(results) == limit) {
-         results
+         List.rev(results)
        } else {
-         tail
-         |> List.rev
-         |> take(limit)
-         |> List.rev
+         take(limit, tail)
        };
   };
 
@@ -48,6 +45,8 @@ let limitResults = (limit: int, results: list(scoredResult('a))) : list(scoredRe
   if (List.length(results) <= limit) {
     results
   } else {
-    take(limit, results)
+    results
+    |> List.rev
+    |> take(limit)
   };
 
