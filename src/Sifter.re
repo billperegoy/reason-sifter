@@ -1,6 +1,9 @@
 type extractor('a) =
   'a => string;
 
+type extractorList('a) =
+  list(extractor('a));
+
 type conjunctionType =
   | And
   | Or;
@@ -15,7 +18,7 @@ type sortField('a) = {
 };
 
 type config('a) = {
-  extractor: list(extractor('a)),
+  extractor: extractorList('a),
   limit: int,
   sort: option(sortField('a)),
   filter: bool,
@@ -26,27 +29,29 @@ type config('a) = {
 type scoredResult('a) =
   (float, 'a);
 
+type scoredResultList('a) =
+  list(scoredResult('a));
 
-let extractResults = (results: list(scoredResult('a))) : list('a) =>
+let extractResults = (results: scoredResultList('a)) : list('a) =>
   List.map(snd, results);
 
-let rec take = (limit: int , results: list(scoredResult('a))) : list(scoredResult('a)) =>
+let rec takeReversed = (limit: int , results: scoredResultList('a)) : scoredResultList('a) =>
   switch(results) {
   | [] => []
   | [_head, ...tail] =>
        if (List.length(results) == limit) {
          List.rev(results)
        } else {
-         take(limit, tail)
+         takeReversed(limit, tail)
        };
   };
 
-let limitResults = (limit: int, results: list(scoredResult('a))) : list(scoredResult('a)) =>
+let limitResults = (limit: int, results: scoredResultList('a)) : scoredResultList('a) =>
   if (List.length(results) <= limit) {
     results
   } else {
     results
     |> List.rev
-    |> take(limit)
+    |> takeReversed(limit)
   };
 
