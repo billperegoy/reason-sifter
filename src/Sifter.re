@@ -30,15 +30,24 @@ type scoredResult('a) =
 let extractResults = (results: list(scoredResult('a))) : list('a) =>
   List.map(snd, results);
 
+let rec take = (limit, results) =>
+  switch(results) {
+  | [] => []
+  | [_head, ...tail] =>
+       if (List.length(results) == limit) {
+         results
+       } else {
+         tail
+         |> List.rev
+         |> take(limit)
+         |> List.rev
+       };
+  };
+
 let limitResults = (limit: int, results: list(scoredResult('a))) : list(scoredResult('a)) =>
   if (List.length(results) <= limit) {
     results
   } else {
-    results
+    take(limit, results)
   };
 
-
-let scores = [(1.0, "a"), (2.0, "b"), (3.0, "c"), (4.0, "d")];
-let answers = extractResults(scores);
-Js.log(scores);
-Js.log(answers);
