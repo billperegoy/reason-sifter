@@ -32,26 +32,37 @@ type scoredResult('a) =
 type scoredResultList('a) =
   list(scoredResult('a));
 
-let extractResults = (results: scoredResultList('a)) : list('a) =>
+let extract_results = (results: scoredResultList('a)) : list('a) =>
   List.map(snd, results);
 
-let rec takeReversed = (limit: int , results: scoredResultList('a)) : scoredResultList('a) =>
+let rec take_reversed = (limit: int , results: scoredResultList('a)) : scoredResultList('a) =>
   switch(results) {
   | [] => []
   | [_head, ...tail] =>
        if (List.length(results) == limit) {
          List.rev(results)
        } else {
-         takeReversed(limit, tail)
+         take_reversed(limit, tail)
        };
   };
 
-let limitResults = (limit: int, results: scoredResultList('a)) : scoredResultList('a) =>
+let limit_results = (limit: int, results: scoredResultList('a)) : scoredResultList('a) =>
   if (List.length(results) <= limit) {
     results
   } else {
     results
     |> List.rev
-    |> takeReversed(limit)
+    |> take_reversed(limit)
   };
 
+let match_one = (extractor: extractor('a), string: string, elem: 'a) : scoredResult('a) =>
+  (0.0, elem)
+
+/* https://bucklescript.github.io/bucklescript/api/Js.Re.html */
+/*
+  Js.Re.fromString(string)
+  |> Js.Re.exec(extractor(elem))
+  |> function
+    | Some(result) => (0.0, elem)
+    | None => (0.0, elem)
+*/
